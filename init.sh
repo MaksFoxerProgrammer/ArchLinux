@@ -1,6 +1,6 @@
 #!/bin/bash
 
-device='/dev/sda'
+device='/dev/sda0'
 mount='/mnt'
 root=20
 boot=300
@@ -78,3 +78,61 @@ do
   esac
   shift
 done
+
+
+
+
+
+
+
+
+if [[ $step -le 1 ]]
+then
+  echo '########################################################################'
+  echo '#                                                                      #'
+  echo '# Step 1: format device and mount partitions                           #'
+  echo '#                                                                      #'
+  echo '########################################################################'
+  echo
+
+  # чтобы случайно не убить данные на диске
+  exit 1
+
+  # РАЗМЕТКА
+  # ----------------------------------------------------------
+  parted -a optimal $device  	# выравнивание разделов
+  unit mib
+  mklabel gpt
+
+  mkpart primary 2 258		#1 /dev/sda1 256MB EFI (FAT32)
+  set 1 boot on
+
+  mkpart primary 258 514	#2 /dev/sda2 256MB boot (ext2)
+  name 2 boot
+
+  mkpart primary 514 4610	#3 /dev/sda3 4GB (SWAP)
+  name 3 swap
+
+  mkpart primary 4610 -1	#4 /dev/sda4 (ext4)
+  name 4 root
+
+  print						#чё вышло?
+  quit
+
+  # ФОРМАТИРОВАНИЕ
+  # -----------------------------------------
+  mkfs.fat -F32 /dev/sda1		#EFI  (FAT32)
+  mkfs.ext2 /dev/sda2			#boot (ext2)
+  mkfs.ext4 /dev/sda4			#root (ext4)
+  # mkswap /dev/sda3			#swap
+  # swapon /dev/sda3
+
+  # МОНТИРОВАНИЕ
+  # ---------------------------
+  mount /dev/sda4 /mnt
+  mkdir -p /mnt/{home,boot}
+  mount /dev/sda2 /mnt/boot
+
+  echo 'Completed!'
+  step=2
+fi
