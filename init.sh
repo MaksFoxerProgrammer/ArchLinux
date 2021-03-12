@@ -96,8 +96,12 @@ then
 
   loadkeys ru
   setfont cyr-sun16
-  # nano /etc/locale.gen     ####  add   ru_RU.UTF-8 UTF-8
+  echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+  echo "ru_RU.UTF-8 UTF-8" >> /etc/locale.gen
   locale-gen
+  echo 'LANG="ru_RU.UTF-8"' > /etc/locale.conf 
+  echo "KEYMAP=ru" >> /etc/vconsole.conf
+  echo "FONT=cyr-sun16" >> /etc/vconsole.conf
   export LANG="ru_RU.UTF-8"
 
   echo 'Completed!'
@@ -260,5 +264,160 @@ then
   echo
 
   genfstab -U "$mount" >> "$mount/etc/fstab"
+  echo 'Completed!'
+fi
+
+
+
+
+
+configure_system_commands=$(cat << COMMANDS
+timedatectl set-ntp true
+ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
+
+echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+echo "ru_RU.UTF-8 UTF-8" >> /etc/locale.gen
+locale-gen
+echo 'LANG="ru_RU.UTF-8"' > /etc/locale.conf 
+echo "KEYMAP=ru" >> /etc/vconsole.conf
+echo "FONT=cyr-sun16" >> /etc/vconsole.conf
+echo ""
+echo " Укажите пароль для ROOT "
+passwd
+
+useradd -m -g users -G wheel -s /bin/bash $username
+
+pacman -S reflector --noconfirm
+reflector --verbose -l 50 -p http --sort rate --save /etc/pacman.d/mirrorlist
+reflector --verbose -l 15 --sort rate --save /etc/pacman.d/mirrorlist
+
+
+
+# UEFI(systemd-boot )
+bootctl install 
+clear
+echo ' default arch ' > /boot/loader/loader.conf
+echo ' timeout 10 ' >> /boot/loader/loader.conf
+echo ' editor 0' >> /boot/loader/loader.conf
+echo 'title   Arch Linux' > /boot/loader/entries/arch.conf
+echo "linux  /vmlinuz-linux" >> /boot/loader/entries/arch.conf
+
+# # GRUB(legacy)
+# pacman -S grub   --noconfirm
+# lsblk -f
+# read -p "Укажите диск куда установить GRUB (sda/sdb): " x_boot
+# grub-install /dev/$x_boot
+# grub-mkconfig -o /boot/grub/grub.cfg
+# echo " установка завершена "
+
+# # UEFI-GRUB
+# pacman -S grub os-prober --noconfirm
+# grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+# grub-mkconfig -o /boot/grub/grub.cfg
+
+
+
+mkinitcpio -p linux
+
+
+echo '%wheel ALL=(ALL) ALL' >> /etc/sudoers
+
+echo '[multilib]' >> /etc/pacman.conf
+echo 'Include = /etc/pacman.d/mirrorlist' >> /etc/pacman.conf
+
+pacman -Sy xorg-server xorg-drivers xorg-xinit virtualbox-guest-utils --noconfirm
+
+
+pacman -S i3 i3-wm i3status  dmenu  --noconfirm
+pacman -S lightdm lightdm-gtk-greeter-settings lightdm-gtk-greeter --noconfirm
+systemctl enable lightdm.service -f
+
+
+pacman -Sy networkmanager networkmanager-openvpn network-manager-applet ppp --noconfirm
+systemctl enable NetworkManager.service
+
+systemctl enable dhcpcd.service
+
+pacman -Sy pulseaudio-bluetooth alsa-utils pulseaudio-equalizer-ladspa   --noconfirm
+systemctl enable bluetooth.service
+
+pacman -Sy exfat-utils ntfs-3g   --noconfirm
+
+pacman -Sy unzip unrar  lha ark --noconfirm
+
+pacman -S blueman --noconfirm
+
+pacman -S htop xterm --noconfirm
+
+pacman -S filezilla --noconfirm
+
+pacman -S gwenview --noconfirm
+
+pacman -S neofetch  --noconfirm
+
+pacman -S vlc  --noconfirm
+
+pacman -S gparted  --noconfirm
+
+pacman -S telegram-desktop   --noconfirm
+
+pacman -S flameshot --noconfirm
+
+pacman -S  ttf-arphic-ukai git ttf-liberation ttf-dejavu ttf-arphic-uming ttf-fireflysung ttf-sazanami --noconfirm
+
+pacman -S opera pepper-flash --noconfirm 
+
+cd /home/$username
+git clone https://aur.archlinux.org/yay.git
+chown -R $username:users /home/$username/yay
+chown -R $username:users /home/$username/yay/PKGBUILD 
+cd /home/$username/yay  
+sudo -u $username  makepkg -si --noconfirm  
+rm -Rf /home/$username/yay
+clear
+
+cd /home/$username
+git clone https://aur.archlinux.org/gconf.git 
+chown -R $username:users /home/$username/gconf
+chown -R $username:users /home/$username/gconf/PKGBUILD 
+cd /home/$username/gconf  
+sudo -u $username  makepkg -si --noconfirm  
+rm -Rf /home/$username/gconf
+###
+cd /home/$username
+git clone https://aur.archlinux.org/vk-messenger.git
+chown -R $username:users /home/$username/vk-messenger
+chown -R $username:users /home/$username/vk-messenger/PKGBUILD 
+cd /home/$username/vk-messenger  
+sudo -u $username  makepkg -si --noconfirm  
+rm -Rf /home/$username/vk-messenger
+#####
+clear
+
+cd /home/$username
+ git clone https://aur.archlinux.org/pamac-aur.git
+chown -R $username:users /home/$username/pamac-aur
+chown -R $username:users /home/$username/pamac-aur/PKGBUILD 
+cd /home/$username/pamac-aur
+sudo -u $username  makepkg -si --noconfirm  
+rm -Rf /home/$username/pamac-aur
+clear
+
+
+COMMANDS
+)
+
+
+
+if [[ $step -le 4 ]]
+then
+  echo '########################################################################'
+  echo '#                                                                      #'
+  echo '# Step 4: configure system                                             #'
+  echo '#                                                                      #'
+  echo '########################################################################'
+  echo
+
+  arch-chroot "$mount" bash <<< "$configure_system_commands"
   echo 'Completed!'
 fi
