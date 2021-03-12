@@ -203,41 +203,41 @@ then
     mtools
 
 
-    # Из интеренета
-    btrfs-progs
-    docker-compose
-    efibootmgr
-    fd
-    fzf
-    gimp
-    gparted
-    grub
-    gvm
-    jq
-    libldm
-    linux
-    linux-headers
-    man-db
-    man-pages
-    mc
-    mlocate
-    mpv
-    neofetch
-    networkmanager-openvpn
-    networkmanager-pptp
-    noto-fonts
-    noto-fonts-emoji
-    ntfs-3g
-    pkgfile
-    pass
-    qt5ct
-    reflector
-    rsync
-    snapper
-    systemd-swap
-    whois
-    xorg
-    zsh
+    # # Из интеренета
+    # btrfs-progs
+    # docker-compose
+    # efibootmgr
+    # fd
+    # fzf
+    # gimp
+    # gparted
+    # grub
+    # gvm
+    # jq
+    # libldm
+    # linux
+    # linux-headers
+    # man-db
+    # man-pages
+    # mc
+    # mlocate
+    # mpv
+    # neofetch
+    # networkmanager-openvpn
+    # networkmanager-pptp
+    # noto-fonts
+    # noto-fonts-emoji
+    # ntfs-3g
+    # pkgfile
+    # pass
+    # qt5ct
+    # reflector
+    # rsync
+    # snapper
+    # systemd-swap
+    # whois
+    # xorg
+    # zsh
   )
 
   set +e
