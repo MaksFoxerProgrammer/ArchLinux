@@ -33,11 +33,11 @@ Args:
   -s, --step      Start from step
 Steps:
   1) localization
-  1) format device and mount partitions
-  2) install base packages and WM
-  3) generate /etc/fstab
-  4) configure system
-  5) install AUR packages and configure user
+  2) format device and mount partitions
+  3) install base packages and WM
+  4) generate /etc/fstab
+  5) configure system
+  #6) install AUR packages and configure user
 EOF
 }
 
@@ -114,7 +114,7 @@ fi
 
 
 
-if [[ $step -le 1 ]]
+if [[ $step -le 2 ]]
 then
   echo '########################################################################'
   echo '#                                                                      #'
@@ -167,7 +167,7 @@ fi
 
 
 
-if [[ $step -le 2 ]]
+if [[ $step -le 3 ]]
 then
   echo '########################################################################'
   echo '#                                                                      #'
@@ -245,6 +245,7 @@ then
   set -e
 
   echo 'Completed!'
+  step=4
 fi
 
 
@@ -254,7 +255,7 @@ fi
 
 
 
-if [[ $step -le 3 ]]
+if [[ $step -le 4 ]]
 then
   echo '########################################################################'
   echo '#                                                                      #'
@@ -265,6 +266,7 @@ then
 
   genfstab -U "$mount" >> "$mount/etc/fstab"
   echo 'Completed!'
+  step=5
 fi
 
 
@@ -409,11 +411,11 @@ COMMANDS
 
 
 
-if [[ $step -le 4 ]]
+if [[ $step -le 5 ]]
 then
   echo '########################################################################'
   echo '#                                                                      #'
-  echo '# Step 4: configure system                                             #'
+  echo '# Step 5: configure system                                             #'
   echo '#                                                                      #'
   echo '########################################################################'
   echo
